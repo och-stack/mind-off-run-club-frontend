@@ -1,14 +1,54 @@
-import { useState } from "react";
 
-function Login({
-    loginUrl,
-    onBackToFeed,
-    onSignUp,
-    onLoginSuccess,
-}) {
+import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient";
+
+function Login({ onSignUp, onLoginSuccess }) {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+    // Restore the Supabase session after redirecting back
+    useEffect(() => {
+        async function checkSession() {
+            const { data, error } = await supabase.auth.getSession();
+
+            if (error) {
+                setError(error.message);
+                return;
+            }
+
+            if (data.session?.access_token) {
+                localStorage.setItem(
+                    "mindoff_token",
+                    data.session.access_token
+                );
+
+                onLoginSuccess();
+            }
+        }
+
+        checkSession();
+    }, [onLoginSuccess]);
+
+    // Sign in with Google
+    async function handleGoogleLogin() {
+        setError("");
+        setIsGoogleLoading(true);
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: window.location.origin,
+            },
+        });
+
+        if (error) {
+            setError(error.message);
+            setIsGoogleLoading(false);
+        }
+    }
+
+    // Sign in with email and password
     async function handleSubmit(event) {
         event.preventDefault();
 
@@ -20,33 +60,28 @@ function Login({
         const password = form.elements.password.value;
 
         try {
-            const response = await fetch(loginUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ email, password }),
-            });
+            const { data, error } =
+                await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || "Login failed.");
+            if (error) {
+                throw error;
             }
 
-            if (!data.access_token) {
-                throw new Error("Login succeeded, but no access token was returned.");
+            if (!data.session?.access_token) {
+                throw new Error("No access token was returned.");
             }
 
-            localStorage.setItem("mindoff_token", data.access_token);
+            localStorage.setItem(
+                "mindoff_token",
+                data.session.access_token
+            );
 
             onLoginSuccess();
         } catch (error) {
-            setError(
-                error.message === "Failed to fetch"
-                    ? "Unable to connect to the server. Please check the API URL and try again."
-                    : error.message
-            );
+            setError(error.message || "Login failed. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -56,13 +91,9 @@ function Login({
         <main className="login-page">
             <section className="login-poster">
                 <div className="poster-content">
-                    <button
-                        className="poster-logo"
-                        type="button"
-                        onClick={onBackToFeed}
-                    >
+                    <div className="poster-logo">
                         MIND OFF <span>RUN CLUB</span>
-                    </button>
+                    </div>
 
                     <div className="poster-message">
                         <p className="poster-eyebrow">
@@ -88,18 +119,26 @@ function Login({
 
             <section className="login-form-section">
                 <div className="login-card">
-                    <button
-                        className="back-to-feed"
-                        type="button"
-                        onClick={onBackToFeed}
-                    >
-                        ← Back to Feed
-                    </button>
-
                     <h2>Welcome back.</h2>
+
                     <p className="login-description">
                         Ready to run together?
                     </p>
+
+                    <button
+                        className="google-login-button"
+                        type="button"
+                        onClick={handleGoogleLogin}
+                        disabled={isGoogleLoading || isLoading}
+                    >
+                        {isGoogleLoading
+                            ? "Connecting to Google..."
+                            : "Continue with Google"}
+                    </button>
+
+                    <div className="login-divider">
+                        <span>or log in with email</span>
+                    </div>
 
                     <form className="login-form" onSubmit={handleSubmit}>
                         <label htmlFor="login-email">Email</label>
@@ -131,7 +170,7 @@ function Login({
                         <button
                             className="login-button"
                             type="submit"
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                         >
                             {isLoading ? "Logging in..." : "Log In"}
                         </button>
@@ -151,7 +190,6 @@ function Login({
             </section>
         </main>
     );
-
 }
 
 export default Login;

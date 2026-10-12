@@ -3,7 +3,7 @@ import CreatePost from "./CreatePost";
 import PostCard from "./PostCard";
 import FriendsSidebar from "./FriendsSidebar";
 
-function Feed({ posts, friends, onCreatePost }) {
+function Feed({ posts, friends, onCreatePost, isSubmittingPost }) {
     return (
         <main className="dashboard">
             <section className="feed-section">
@@ -12,7 +12,10 @@ function Feed({ posts, friends, onCreatePost }) {
                     <p>Move your body. Clear your mind.</p>
                 </div>
 
-                <CreatePost onCreatePost={onCreatePost} />
+                <CreatePost
+                    onCreatePost={onCreatePost}
+                    isSubmitting={isSubmittingPost}
+                />
 
                 <div className="posts-list">
                     {posts.map((post) => (

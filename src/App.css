@@ -679,3 +679,42 @@ button:disabled {
 .signup-link:hover {
     text-decoration: underline;
 }
+
+
+.google-login-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    border: 1px solid #d8d5cd;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #292d27;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.google-login-button:hover {
+    background: #f5f4ef;
+}
+
+.google-login-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: #777970;
+    font-size: 13px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e1dfd7;
+}

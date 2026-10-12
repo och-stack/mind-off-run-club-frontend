@@ -26,14 +26,14 @@ function PostCard({ post }) {
                     {post.avatar_url ? (
                         <img
                             src={post.avatar_url}
-                            alt={`${post.username}'s profile`}
+                            alt={`${post.username || "User"}'s profile`}
                         />
                     ) : (
-                        post.username.charAt(0).toUpperCase()
+                        (post.username || "U").charAt(0).toUpperCase()
                     )}
                 </div>
 
-                <span>{post.username}</span>
+                <span>{post.username || "Unknown user"}</span>
             </div>
 
             <h2 className="post-title">{post.title}</h2>
