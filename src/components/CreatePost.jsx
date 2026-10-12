@@ -1,39 +1,48 @@
-
 import { useState } from "react";
 
-function CreatePost({ onCreatePost }) {
+function CreatePost({ onCreatePost, isSubmitting = false }) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [imageUrl, setImageUrl] = useState("");
+    const [image, setImage] = useState(null);
     const [visibility, setVisibility] = useState("public");
+    const [error, setError] = useState("");
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
 
+        // Keep the form reference before waiting for the API.
+        const form = event.currentTarget;
+
+        setError("");
+
         if (!title.trim() || !description.trim()) {
+            setError("Please enter a title and description.");
             return;
         }
 
-        const newPost = {
-            id: Date.now(),
-            user_id: null,
-            username: "You",
-            avatar_url: "",
-            title: title.trim(),
-            content: description.trim(),
-            image_url: imageUrl.trim(),
-            created_at: new Date().toISOString(),
-            visibility,
-        };
+        if (image && image.size > 5 * 1024 * 1024) {
+            setError("Image must be 5 MB or smaller.");
+            return;
+        }
 
-        onCreatePost(newPost);
+        try {
+            // Send the post to the backend.
+            await onCreatePost({
+                title: title.trim(),
+                content: description.trim(),
+                image,
+                visibility,
+            });
 
-        setTitle("");
-        setDescription("");
-        setImageUrl("");
-        setVisibility("public");
-
-        // Later: send the new post to the backend API.
+            // Clear the form only after successful creation.
+            setTitle("");
+            setDescription("");
+            setImage(null);
+            setVisibility("public");
+            form.reset();
+        } catch (error) {
+            setError(error.message || "Failed to create post.");
+        }
     }
 
     return (
@@ -61,12 +70,13 @@ function CreatePost({ onCreatePost }) {
             />
 
             <input
-                type="url"
-                name="image_url"
-                placeholder="Image URL (optional)"
-                value={imageUrl}
-                onChange={(event) => setImageUrl(event.target.value)}
-                aria-label="Image URL"
+                type="file"
+                name="image"
+                accept="image/*"
+                aria-label="Upload image"
+                onChange={(event) => {
+                    setImage(event.target.files?.[0] || null);
+                }}
             />
 
             <div className="visibility-options">
@@ -80,7 +90,9 @@ function CreatePost({ onCreatePost }) {
                         name="visibility"
                         value="public"
                         checked={visibility === "public"}
-                        onChange={(event) => setVisibility(event.target.value)}
+                        onChange={(event) =>
+                            setVisibility(event.target.value)
+                        }
                     />
                     <span>Public</span>
                 </label>
@@ -91,14 +103,22 @@ function CreatePost({ onCreatePost }) {
                         name="visibility"
                         value="friends"
                         checked={visibility === "friends"}
-                        onChange={(event) => setVisibility(event.target.value)}
+                        onChange={(event) =>
+                            setVisibility(event.target.value)
+                        }
                     />
                     <span>Friends-only</span>
                 </label>
             </div>
 
-            <button className="post-button" type="submit">
-                Post
+            {error && <p role="alert">{error}</p>}
+
+            <button
+                className="post-button"
+                type="submit"
+                disabled={isSubmitting}
+            >
+                {isSubmitting ? "Posting..." : "Post"}
             </button>
         </form>
     );

@@ -1,8 +1,8 @@
 
 import { useState } from "react";
-import { ENDPOINTS } from "../App";
+import { supabase } from "./supabaseClient";
 
-function Signup({ onBackToFeed, onLogin }) {
+function Signup({ onLogin }) {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [success, setSuccess] = useState("");
@@ -21,30 +21,37 @@ function Signup({ onBackToFeed, onLogin }) {
         const password = formData.get("password");
 
         try {
-            const response = await fetch(ENDPOINTS.signup, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        username,
+                    },
                 },
-                body: JSON.stringify({
-                    username,
-                    email,
-                    password,
-                }),
             });
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    data.error || "Unable to create your account."
-                );
+            if (error) {
+                throw error;
             }
 
-            setSuccess("Account created successfully! You can now log in.");
+            if (data.session?.access_token) {
+                localStorage.setItem(
+                    "mindoff_token",
+                    data.session.access_token
+                );
+
+                setSuccess(
+                    "Account created successfully! You can now log in."
+                );
+            } else {
+                setSuccess(
+                    "Account created! Please check your email to confirm your account before logging in."
+                );
+            }
         } catch (err) {
             setError(
-                err.message || "Something went wrong. Please try again."
+                err.message || "Unable to create your account."
             );
         } finally {
             setIsLoading(false);
@@ -55,13 +62,9 @@ function Signup({ onBackToFeed, onLogin }) {
         <main className="login-page">
             <section className="login-poster">
                 <div className="poster-content">
-                    <button
-                        className="poster-logo"
-                        type="button"
-                        onClick={onBackToFeed}
-                    >
+                    <div className="poster-logo">
                         MIND OFF <span>RUN CLUB</span>
-                    </button>
+                    </div>
 
                     <div className="poster-message">
                         <p className="poster-eyebrow">
@@ -87,14 +90,6 @@ function Signup({ onBackToFeed, onLogin }) {
 
             <section className="login-form-section">
                 <div className="login-card">
-                    <button
-                        className="back-to-feed"
-                        type="button"
-                        onClick={onBackToFeed}
-                    >
-                        ← Back to Feed
-                    </button>
-
                     <h2>Join the club.</h2>
 
                     <p className="login-description">
@@ -129,18 +124,30 @@ function Signup({ onBackToFeed, onLogin }) {
                             type="password"
                             placeholder="Create a password"
                             autoComplete="new-password"
+                            minLength={6}
                             required
                         />
 
-                        {error && <p role="alert">{error}</p>}
-                        {success && <p role="status">{success}</p>}
+                        {error && (
+                            <p className="login-error" role="alert">
+                                {error}
+                            </p>
+                        )}
+
+                        {success && (
+                            <p role="status">
+                                {success}
+                            </p>
+                        )}
 
                         <button
                             className="login-button"
                             type="submit"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Creating Account..." : "Create Account"}
+                            {isLoading
+                                ? "Creating Account..."
+                                : "Create Account"}
                         </button>
                     </form>
 
