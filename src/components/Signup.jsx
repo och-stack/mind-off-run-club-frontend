@@ -1,9 +1,54 @@
 
+import { useState } from "react";
+import { ENDPOINTS } from "../App";
+
 function Signup({ onBackToFeed, onLogin }) {
-    function handleSubmit(event) {
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [success, setSuccess] = useState("");
+
+    async function handleSubmit(event) {
         event.preventDefault();
 
-        // Connect account creation to the backend later.
+        setError("");
+        setSuccess("");
+        setIsLoading(true);
+
+        const formData = new FormData(event.currentTarget);
+
+        const username = formData.get("username").trim();
+        const email = formData.get("email").trim();
+        const password = formData.get("password");
+
+        try {
+            const response = await fetch(ENDPOINTS.signup, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error || "Unable to create your account."
+                );
+            }
+
+            setSuccess("Account created successfully! You can now log in.");
+        } catch (err) {
+            setError(
+                err.message || "Something went wrong. Please try again."
+            );
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -19,7 +64,9 @@ function Signup({ onBackToFeed, onLogin }) {
                     </button>
 
                     <div className="poster-message">
-                        <p className="poster-eyebrow">YOUR RUNNING COMMUNITY</p>
+                        <p className="poster-eyebrow">
+                            YOUR RUNNING COMMUNITY
+                        </p>
 
                         <h1>
                             FIND YOUR PACE.
@@ -82,12 +129,18 @@ function Signup({ onBackToFeed, onLogin }) {
                             type="password"
                             placeholder="Create a password"
                             autoComplete="new-password"
-                            minLength={6}
                             required
                         />
 
-                        <button className="login-button" type="submit">
-                            Create Account
+                        {error && <p role="alert">{error}</p>}
+                        {success && <p role="status">{success}</p>}
+
+                        <button
+                            className="login-button"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Creating Account..." : "Create Account"}
                         </button>
                     </form>
 

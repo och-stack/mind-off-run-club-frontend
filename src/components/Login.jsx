@@ -1,9 +1,55 @@
+import { useState } from "react";
 
-function Login({ onBackToFeed, onSignUp }) {
-    function handleSubmit(event) {
+function Login({
+    loginUrl,
+    onBackToFeed,
+    onSignUp,
+    onLoginSuccess,
+}) {
+    const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
+    async function handleSubmit(event) {
         event.preventDefault();
 
-        // Connect login authentication to the backend later.
+        setError("");
+        setIsLoading(true);
+
+        const form = event.currentTarget;
+        const email = form.elements.email.value.trim();
+        const password = form.elements.password.value;
+
+        try {
+            const response = await fetch(loginUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Login failed.");
+            }
+
+            if (!data.access_token) {
+                throw new Error("Login succeeded, but no access token was returned.");
+            }
+
+            localStorage.setItem("mindoff_token", data.access_token);
+
+            onLoginSuccess();
+        } catch (error) {
+            setError(
+                error.message === "Failed to fetch"
+                    ? "Unable to connect to the server. Please check the API URL and try again."
+                    : error.message
+            );
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -19,7 +65,9 @@ function Login({ onBackToFeed, onSignUp }) {
                     </button>
 
                     <div className="poster-message">
-                        <p className="poster-eyebrow">YOUR RUNNING COMMUNITY</p>
+                        <p className="poster-eyebrow">
+                            YOUR RUNNING COMMUNITY
+                        </p>
 
                         <h1>
                             FIND YOUR PACE.
@@ -49,7 +97,9 @@ function Login({ onBackToFeed, onSignUp }) {
                     </button>
 
                     <h2>Welcome back.</h2>
-                    <p className="login-description">Ready to run together?</p>
+                    <p className="login-description">
+                        Ready to run together?
+                    </p>
 
                     <form className="login-form" onSubmit={handleSubmit}>
                         <label htmlFor="login-email">Email</label>
@@ -72,8 +122,18 @@ function Login({ onBackToFeed, onSignUp }) {
                             required
                         />
 
-                        <button className="login-button" type="submit">
-                            Log In
+                        {error && (
+                            <p className="login-error" role="alert">
+                                {error}
+                            </p>
+                        )}
+
+                        <button
+                            className="login-button"
+                            type="submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "Logging in..." : "Log In"}
                         </button>
                     </form>
 
@@ -91,6 +151,7 @@ function Login({ onBackToFeed, onSignUp }) {
             </section>
         </main>
     );
+
 }
 
 export default Login;
