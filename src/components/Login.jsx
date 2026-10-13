@@ -96,15 +96,6 @@ function Login({ onSignUp, onLoginSuccess }) {
                     </div>
 
                     <div className="poster-message">
-                        <p className="poster-eyebrow">
-                            YOUR RUNNING COMMUNITY
-                        </p>
-
-                        <h1>
-                            FIND YOUR PACE.
-                            <br />
-                            <span>CLEAR YOUR MIND.</span>
-                        </h1>
 
                         <p className="poster-description">
                             Move your body. Clear your mind. Find your crew.
