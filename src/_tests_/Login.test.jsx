@@ -1,17 +1,40 @@
 
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
+
+// Mock Supabase Auth so tests do not need real credentials.
+vi.mock("../components/supabaseClient", () => ({
+    supabase: {
+        auth: {
+            getSession: vi.fn(),
+            signInWithPassword: vi.fn(),
+            signInWithOAuth: vi.fn(),
+        },
+    },
+}));
+
+import { supabase } from "../components/supabaseClient";
 import Login from "../components/Login";
 
 describe("Login component", () => {
+    const onLoginSuccess = vi.fn();
+
+    beforeEach(() => {
+        // Pretend the user has no existing session.
+        supabase.auth.getSession.mockResolvedValue({
+            data: { session: null },
+            error: null,
+        });
+    });
+
     afterEach(() => {
         cleanup();
-        vi.unstubAllGlobals();
         localStorage.clear();
+        vi.clearAllMocks();
     });
 
     it("displays the login form", () => {
-        render(<Login loginUrl="/api/login" />);
+        render(<Login onLoginSuccess={onLoginSuccess} />);
 
         expect(
             screen.getByRole("heading", { name: "Welcome back." })
@@ -23,25 +46,21 @@ describe("Login component", () => {
         expect(
             screen.getByRole("button", { name: "Log In" })
         ).toBeInTheDocument();
+
+        expect(
+            screen.getByRole("button", { name: "Continue with Google" })
+        ).toBeInTheDocument();
     });
 
-    it("saves the token and calls onLoginSuccess after successful login", async () => {
-        const onLoginSuccess = vi.fn();
+    it("logs in successfully and saves the access token", async () => {
+        supabase.auth.signInWithPassword.mockResolvedValue({
+            data: {
+                session: { access_token: "test-token" },
+            },
+            error: null,
+        });
 
-        vi.stubGlobal(
-            "fetch",
-            vi.fn().mockResolvedValue({
-                ok: true,
-                json: async () => ({ access_token: "test-token" }),
-            })
-        );
-
-        render(
-            <Login
-                loginUrl="/api/login"
-                onLoginSuccess={onLoginSuccess}
-            />
-        );
+        render(<Login onLoginSuccess={onLoginSuccess} />);
 
         fireEvent.change(screen.getByLabelText("Email"), {
             target: { value: "runner@example.com" },
@@ -59,28 +78,19 @@ describe("Login component", () => {
 
         expect(localStorage.getItem("mindoff_token")).toBe("test-token");
 
-        expect(fetch).toHaveBeenCalledWith(
-            "/api/login",
-            expect.objectContaining({
-                method: "POST",
-                body: JSON.stringify({
-                    email: "runner@example.com",
-                    password: "password123",
-                }),
-            })
-        );
+        expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
+            email: "runner@example.com",
+            password: "password123",
+        });
     });
 
-    it("shows an error when login fails", async () => {
-        vi.stubGlobal(
-            "fetch",
-            vi.fn().mockResolvedValue({
-                ok: false,
-                json: async () => ({ error: "Invalid email or password" }),
-            })
-        );
+    it("shows an error when Supabase login fails", async () => {
+        supabase.auth.signInWithPassword.mockResolvedValue({
+            data: { session: null },
+            error: { message: "Invalid login credentials" },
+        });
 
-        render(<Login loginUrl="/api/login" />);
+        render(<Login onLoginSuccess={onLoginSuccess} />);
 
         fireEvent.change(screen.getByLabelText("Email"), {
             target: { value: "runner@example.com" },
@@ -93,20 +103,17 @@ describe("Login component", () => {
         fireEvent.click(screen.getByRole("button", { name: "Log In" }));
 
         expect(await screen.findByRole("alert")).toHaveTextContent(
-            "Invalid email or password"
+            "Invalid login credentials"
         );
     });
 
-    it("shows an error when the server does not return an access token", async () => {
-        vi.stubGlobal(
-            "fetch",
-            vi.fn().mockResolvedValue({
-                ok: true,
-                json: async () => ({}),
-            })
-        );
+    it("shows an error when Supabase returns no access token", async () => {
+        supabase.auth.signInWithPassword.mockResolvedValue({
+            data: { session: null },
+            error: null,
+        });
 
-        render(<Login loginUrl="/api/login" />);
+        render(<Login onLoginSuccess={onLoginSuccess} />);
 
         fireEvent.change(screen.getByLabelText("Email"), {
             target: { value: "runner@example.com" },
@@ -118,10 +125,8 @@ describe("Login component", () => {
 
         fireEvent.click(screen.getByRole("button", { name: "Log In" }));
 
-        expect(
-            await screen.findByRole("alert")
-        ).toHaveTextContent(
-            "Login succeeded, but no access token was returned."
+        expect(await screen.findByRole("alert")).toHaveTextContent(
+            "No access token was returned."
         );
     });
 });
