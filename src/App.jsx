@@ -258,7 +258,7 @@ function AppContent() {
           type="button"
           onClick={() => setCurrentPage("feed")}
         >
-          <img src="/run.jpeg" alt="" className="logo-icon" />
+          <img src="/run.png" alt="" className="logo-icon" />
           MIND OFF <span>RUN CLUB</span>
         </button>
 
