@@ -1,14 +1,50 @@
 /* General page */
-
 * {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    background: #07141d;
+    min-height: 100vh;
+    background: linear-gradient(125deg,
+            #07141d 0%,
+            #07566a 20%,
+            #087f9c 35%,
+            #12344f 50%,
+            #244f70 65%,
+            #176b68 80%,
+            #07141d 100%);
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    animation: runningBackground 8s ease-in-out infinite;
     color: #ffffff;
     font-family: Arial, sans-serif;
+}
+
+@keyframes runningBackground {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    25% {
+        background-position: 100% 0%;
+    }
+
+    50% {
+        background-position: 100% 100%;
+    }
+
+    75% {
+        background-position: 0% 100%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#root {
+    min-height: 100vh;
 }
 
 button,
@@ -28,17 +64,21 @@ button:disabled {
 
 .app {
     min-height: 100vh;
-    background: #07141d;
+    background: transparent;
 }
 
-/* Navbar */
-
+/* Navbar - stays at the top while scrolling */
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
     padding: 20px 5%;
+
     background: #07141d;
     border-bottom: 1px solid #193744;
 }
@@ -106,7 +146,6 @@ button:disabled {
 }
 
 /* Feed layout */
-
 .dashboard {
     display: grid;
     grid-template-columns: minmax(0, 4fr) minmax(0, 1fr);
@@ -138,7 +177,6 @@ button:disabled {
 }
 
 /* Create post */
-
 .create-post {
     display: flex;
     flex-direction: column;
@@ -182,7 +220,6 @@ button:disabled {
 }
 
 /* Post visibility */
-
 .visibility-options {
     display: flex;
     flex-wrap: wrap;
@@ -210,7 +247,6 @@ button:disabled {
 }
 
 /* Buttons */
-
 .post-button,
 .login-button {
     padding: 12px 18px;
@@ -233,7 +269,6 @@ button:disabled {
 }
 
 /* Post list */
-
 .posts-list {
     display: flex;
     flex-direction: column;
@@ -247,7 +282,6 @@ button:disabled {
 }
 
 /* Post card */
-
 .post-card {
     padding: 22px;
     border: 1px solid #193744;
@@ -265,7 +299,6 @@ button:disabled {
 }
 
 /* Small avatar in post cards */
-
 .post-author .profile-avatar {
     display: flex;
     flex-shrink: 0;
@@ -343,7 +376,6 @@ button:disabled {
 }
 
 /* Your Crew */
-
 .friends-section {
     align-self: start;
     padding: 0;
@@ -389,7 +421,6 @@ button:disabled {
 }
 
 /* Add Friends page */
-
 .add-friends-page {
     max-width: 1100px;
     margin: 0 auto;
@@ -472,7 +503,6 @@ button:disabled {
 }
 
 /* Profile page */
-
 .profile-page {
     max-width: 1100px;
     margin: 0 auto;
@@ -525,7 +555,6 @@ button:disabled {
 }
 
 /* Edit Profile form alignment */
-
 .profile-content input,
 .profile-content textarea {
     display: block;
@@ -551,13 +580,11 @@ button:disabled {
 }
 
 /* Space between Save Changes and Cancel */
-
 .profile-content button {
     margin: 8px;
 }
 
 /* Login and Signup pages */
-
 .login-page {
     display: flex;
     flex-direction: column;
@@ -566,11 +593,10 @@ button:disabled {
     gap: 28px;
     min-height: 100vh;
     padding: 40px 20px;
-    background: #07141d;
+    background: transparent;
 }
 
 /* Branding above the login card */
-
 .login-poster {
     display: flex;
     width: 100%;
@@ -602,7 +628,6 @@ button:disabled {
 }
 
 /* Centered login card */
-
 .login-form-section {
     display: flex;
     align-items: center;
@@ -651,7 +676,6 @@ button:disabled {
 }
 
 /* Email and password form */
-
 .login-form {
     display: flex;
     flex-direction: column;
@@ -688,7 +712,6 @@ button:disabled {
 }
 
 /* Google login */
-
 .google-login-button {
     width: 100%;
     padding: 12px;
@@ -711,7 +734,6 @@ button:disabled {
 }
 
 /* Divider between login methods */
-
 .login-divider {
     display: flex;
     align-items: center;
@@ -730,7 +752,6 @@ button:disabled {
 }
 
 /* Signup link */
-
 .login-signup {
     display: flex;
     align-items: center;
@@ -759,11 +780,18 @@ button:disabled {
 }
 
 /* Login error message */
-
 .login-error {
     margin: 4px 0;
     color: #ff8e8e;
     font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    body {
+        animation: none;
+        background-position: center;
+    }
 }

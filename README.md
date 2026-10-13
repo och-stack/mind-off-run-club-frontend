@@ -1,16 +1,60 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# <img src="./public/run.png" alt="Logo" width="25"> Mind Off Run Club 
 
-Currently, two official plugins are available:
+Mind Off Run Club is a social running community app where users can connect with other runners, share posts and images, and build friendships.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+![Page](./public/page.png)
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **User Authentication** — Sign up and log in using email and password or Google.
+- **Community Feed** — Create and view posts shared by the community.
+- **Image Posts** — Upload and share images with post content.
+- **Post Visibility** — Share posts publicly or with accepted friends.
+- **Friend Requests** — Discover users, send friend requests, and accept requests.
+- **Your Crew** — View accepted friends in the sidebar.
+- **User Profile** — View and edit profile information, including avatar and bio.
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React
+- Vite
+- JavaScript
+- CSS
+- Node.js
+- Express.js
+- Supabase Authentication
+- Supabase PostgreSQL Database
+- Supabase Storage
+- Railway
+- Vercel
+- Git and GitHub
+
+## Deployment
+
+- **Frontend:** Vercel application
+- **Backend API:** Railway application
+- **Database and Storage:** Supabase PostgreSQL
+
+## API Endpoints
+
+**Base URL:** `https://mind-off-run-club-api-production.up.railway.app`
+
+**Authentication:** Protected endpoints require the Supabase access token in the request header:
+
+`Authorization: Bearer <access_token>`
+
+| Method | Endpoint | Authentication | Description |
+|---|---|---|---|
+| GET | `/` | No | View API documentation |
+| GET | `/health` | No | Check API status |
+| POST | `/signup` | No | Register a new account |
+| POST | `/login` | No | Log in and obtain an access token |
+| GET | `/profile` | Yes | Get the current user's profile |
+| PUT | `/profile` | Yes | Update the current user's profile |
+| GET | `/users` | Yes | Get other users and their friendship statuses |
+| POST | `/friends` | Yes | Send a friend request |
+| GET | `/friends` | Yes | Get friend requests and friendships |
+| PUT | `/friends/:id` | Yes | Accept an incoming friend request |
+| POST | `/posts` | Yes | Create a post with optional image upload |
+| GET | `/posts` | Yes | Get posts visible to the current user |
