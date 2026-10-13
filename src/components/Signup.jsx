@@ -63,6 +63,7 @@ function Signup({ onLogin }) {
             <section className="login-poster">
                 <div className="poster-content">
                     <div className="poster-logo">
+                        <img src="/run.jpeg" alt="" className="logo-icon" />
                         MIND OFF <span>RUN CLUB</span>
                     </div>
 

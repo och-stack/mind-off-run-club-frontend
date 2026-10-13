@@ -54,6 +54,21 @@ button:disabled {
     letter-spacing: 1px;
 }
 
+.logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.logo-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
 .logo span,
 .poster-logo span {
     color: #c7ff4f;
@@ -575,7 +590,10 @@ button:disabled {
 }
 
 .poster-logo {
-    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     font-size: 24px;
 }
 
