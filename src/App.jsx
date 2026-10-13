@@ -26,7 +26,7 @@ function AppContent() {
 
   const [currentPage, setCurrentPage] = useState("feed");
   const [posts, setPosts] = useState([]);
-  const [friends] = useState([]);
+  const [friends, setFriends] = useState([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [isSubmittingPost, setIsSubmittingPost] = useState(false);
   const [feedError, setFeedError] = useState("");
@@ -41,6 +41,7 @@ function AppContent() {
       );
     } else {
       setPosts([]);
+      setFriends([]);
       setCurrentPage("login");
     }
   }, [user, isAuthLoading]);
@@ -80,6 +81,81 @@ function AppContent() {
 
     loadPosts();
   }, [currentPage, user, isAuthLoading]);
+
+  // Load accepted friends for the sidebar.
+  useEffect(() => {
+    if (isAuthLoading) return;
+
+    if (!user || currentPage !== "feed") {
+      if (!user) setFriends([]);
+      return;
+    }
+
+    const token = localStorage.getItem("mindoff_token");
+
+    if (!token) return;
+
+    async function loadFriends() {
+      try {
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        const [usersResponse, friendsResponse] = await Promise.all([
+          fetch(ENDPOINTS.users, { headers }),
+          fetch(ENDPOINTS.friends, { headers }),
+        ]);
+
+        const usersData = await usersResponse.json();
+        const friendsData = await friendsResponse.json();
+
+        if (!usersResponse.ok) {
+          throw new Error("Failed to load users.");
+        }
+
+        if (!friendsResponse.ok) {
+          throw new Error("Failed to load friends.");
+        }
+
+        const usersList = Array.isArray(usersData)
+          ? usersData
+          : usersData.users || [];
+
+        const friendships = Array.isArray(friendsData)
+          ? friendsData
+          : [];
+
+        const acceptedFriendIds = friendships
+          .filter(
+            (friendship) =>
+              friendship.status === "accepted" ||
+              friendship.friendship_status === "accepted"
+          )
+          .map((friendship) => {
+            if (friendship.requester_id === user.id) {
+              return friendship.receiver_id;
+            }
+
+            if (friendship.receiver_id === user.id) {
+              return friendship.requester_id;
+            }
+
+            return null;
+          })
+          .filter(Boolean);
+
+        const friendsList = usersList.filter((person) =>
+          acceptedFriendIds.includes(person.id)
+        );
+
+        setFriends(friendsList);
+      } catch (error) {
+        console.error("Failed to load friends:", error);
+      }
+    }
+
+    loadFriends();
+  }, [user, isAuthLoading, currentPage]);
 
   // Create a post and refresh the feed.
   async function handleCreatePost(newPost) {
@@ -144,6 +220,7 @@ function AppContent() {
   async function handleLogout() {
     await logout();
     setPosts([]);
+    setFriends([]);
     setFeedError("");
     setCurrentPage("login");
   }
