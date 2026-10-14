@@ -37,7 +37,7 @@ describe("Login component", () => {
         render(<Login onLoginSuccess={onLoginSuccess} />);
 
         expect(
-            screen.getByRole("heading", { name: "Welcome back." })
+            screen.getByRole("heading", { name: "Switch Off. Run On." })
         ).toBeInTheDocument();
 
         expect(screen.getByLabelText("Email")).toBeInTheDocument();
