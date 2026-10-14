@@ -114,7 +114,7 @@ function Login({ onSignUp, onLoginSuccess }) {
                     <h2>Switch Off. Run On.</h2>
 
                     <p className="login-description">
-                        Leave the noise behind. Find your rhythm.
+                        Ready for your next run?
                     </p>
 
                     <button
