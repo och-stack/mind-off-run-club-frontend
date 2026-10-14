@@ -111,10 +111,10 @@ function Login({ onSignUp, onLoginSuccess }) {
 
             <section className="login-form-section">
                 <div className="login-card">
-                    <h2>Welcome back.</h2>
+                    <h2>Switch Off. Run On.</h2>
 
                     <p className="login-description">
-                        Ready to run together?
+                        Leave the noise behind. Find your rhythm.
                     </p>
 
                     <button

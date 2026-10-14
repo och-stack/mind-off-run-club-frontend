@@ -72,13 +72,11 @@ button:disabled {
     position: sticky;
     top: 0;
     z-index: 1000;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
     padding: 20px 5%;
-
     background: #07141d;
     border-bottom: 1px solid #193744;
 }
@@ -586,65 +584,111 @@ button:disabled {
 
 /* Login and Signup pages */
 .login-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 460px));
     justify-content: center;
-    gap: 28px;
+    align-content: center;
+    align-items: stretch;
+    gap: 30px;
     min-height: 100vh;
-    padding: 40px 20px;
+    padding: 40px 24px;
+    box-sizing: border-box;
     background: transparent;
 }
 
-/* Branding above the login card */
-.login-poster {
-    display: flex;
+/* Give both desktop cards the same fixed height */
+.login-poster,
+.login-form-section {
     width: 100%;
-    max-width: 440px;
-    min-height: auto;
-    padding: 0;
-    background: none;
+    height: 640px;
+    min-width: 0;
 }
 
+/* Left cinematic image card */
+.login-poster {
+    display: flex;
+    align-items: flex-end;
+    padding: 28px;
+    overflow: hidden;
+    border: 1px solid #244f70;
+    border-radius: 16px;
+    background:
+        linear-gradient(0deg,
+            rgba(7, 20, 29, 0.95) 0%,
+            rgba(7, 20, 29, 0.45) 55%,
+            rgba(7, 20, 29, 0.10) 100%),
+        url("/grouprun.jpeg") center / cover no-repeat;
+}
+
+/* Text over the image */
 .poster-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 14px;
+    align-items: flex-start;
+    gap: 16px;
     width: 100%;
-    text-align: center;
+    text-align: left;
 }
 
 .poster-logo {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: #ffffff;
+    font-size: 22px;
+}
+
+.poster-logo .logo-icon {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+}
+
+.poster-logo span {
+    color: #c7ff4f;
+}
+
+.poster-message {
+    width: 100%;
+}
+
+.poster-description {
+    margin: 0;
+    color: #ffffff;
     font-size: 24px;
+    font-weight: bold;
+    line-height: 1.4;
 }
 
 .poster-footer {
-    display: none;
+    display: block;
+    margin: 0;
+    color: #c7ff4f;
+    font-size: 14px;
 }
 
-/* Centered login card */
+/* Right login/signup form container */
 .login-form-section {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 0;
-    background: transparent;
+    align-items: stretch;
 }
 
+/* Form card fills its container */
 .login-card {
     width: 100%;
-    max-width: 400px;
-    padding: 32px;
-    border: 1px solid #193744;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 28px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    border: 1px solid #244f70;
     border-radius: 16px;
     background: #102631;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
 }
 
 .back-to-feed {
@@ -706,9 +750,15 @@ button:disabled {
     color: #8299a3;
 }
 
+/* Main action button */
 .login-button {
     width: 100%;
     margin-top: 14px;
+}
+
+.login-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
 /* Google login */
@@ -786,6 +836,29 @@ button:disabled {
     font-size: 14px;
     line-height: 1.5;
     overflow-wrap: anywhere;
+}
+
+/* Stack the two cards on narrower screens */
+@media (max-width: 760px) {
+    .login-page {
+        grid-template-columns: minmax(0, 400px);
+        align-content: start;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .login-poster {
+        height: 260px;
+    }
+
+    .login-form-section {
+        height: auto;
+    }
+
+    .login-card {
+        height: auto;
+        overflow-y: visible;
+    }
 }
 
 /* Respect reduced-motion preferences */
